@@ -2,8 +2,11 @@ package java_homework.src;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.PixelInterleavedSampleModel;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class ui {
     public static void main(String[] args) {
@@ -12,7 +15,26 @@ public class ui {
 
     ui(int rows, int cols) {
         JFrame frame = new JFrame("tank battle");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        File saveFile = new File("maze.ser");
+        Optional<MazeStorage> maze = Optional.empty();
+        if (saveFile.exists()) {
+            int result = JOptionPane.showConfirmDialog(
+                    frame,
+                    "发现存档，是否读取?",
+                    "读取存档",
+                    JOptionPane.YES_NO_OPTION
+            );
+            if (result == JOptionPane.YES_OPTION) {
+                maze = Optional.ofNullable(MazeStorage.getMageStorage());
+                if (maze.isPresent()) {
+                    rows = maze.get().rowNum();
+                    cols = maze.get().colNum();
+                }
+            }
+        }
+
         int cellSize = 50;
         int frameWidth = cols * cellSize + 50;
         int frameHeight = rows * cellSize + 70;
@@ -24,6 +46,31 @@ public class ui {
         frame.setLocation((screenWidth - frameWidth) / 2, (screenHeight - frameHeight) / 2);
 
         Panel p = new Panel(cellSize, rows, cols);
+        maze.ifPresent(x -> p.maze = x.maze());
+
+        int finalRows = rows;
+        int finalCols = cols;
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int result = JOptionPane.showConfirmDialog(
+                        frame,
+                        "是否要保存进度?",
+                        "保存进度",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (result == JOptionPane.YES_OPTION) {
+                    if (MazeStorage.storageMaze(0, 0, p.maze, finalRows, finalCols)) {
+                        frame.dispose();
+                    }
+                    MazeStorage.storageMaze(0, 0, p.maze, finalRows, finalCols);
+                } else if (result == JOptionPane.NO_OPTION) {
+                    frame.dispose();
+                    File file = new File("maze.ser");
+                    file.delete();
+                }
+            }
+        });
         frame.add(p);
         frame.setVisible(true);
     }
