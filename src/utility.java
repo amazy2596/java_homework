@@ -1,5 +1,3 @@
-package java_homework.src;
-
 import java.util.*;
 
 public class utility {
