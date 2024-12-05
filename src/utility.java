@@ -1,8 +1,8 @@
 import java.util.*;
 
 public class utility {
-    static int rand(int l, int r) {
-        return (int) (Math.random() * (r - l) + l);
+    static int rand(int low, int high) {
+        return (int) (Math.random() * (high - low + 1) + low);
     }
 }
 

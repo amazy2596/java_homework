@@ -6,10 +6,10 @@ public class MazeGenerator {
         m.print();
     }
 
-    private int rows;
-    private int cols;
-    private static ArrayList<ArrayList<Point>> maze;
-    private ArrayList<Pair<Integer, Integer>> directions;
+    int rows;
+    int cols;
+    static ArrayList<ArrayList<Point>> maze;
+    static ArrayList<Pair<Integer, Integer>> directions;
 
     MazeGenerator(int rows, int cols) {
         this.rows = rows;
@@ -23,15 +23,15 @@ public class MazeGenerator {
             maze.add(row);
         }
         this.directions = new ArrayList<>();
-        directions.add(new Pair(-1, 0));
-        directions.add(new Pair(0, 1));
-        directions.add(new Pair(1, 0));
-        directions.add(new Pair(0, -1));
+        directions.add(new Pair<Integer, Integer>(-1, 0));
+        directions.add(new Pair<Integer, Integer>(0, 1));
+        directions.add(new Pair<Integer, Integer>(1, 0));
+        directions.add(new Pair<Integer, Integer>(0, -1));
         generateMaze();
     }
 
     private void generateMaze() {
-        prim(new Pair(1, 1));
+        prim(new Pair<Integer, Integer>(1, 1));
     }
 
     private void prim(Pair<Integer, Integer> p) {
@@ -51,7 +51,7 @@ public class MazeGenerator {
         }
 
         while (arr.size() != 0) {
-            int idx = utility.rand(0, arr.size());
+            int idx = utility.rand(0, arr.size() - 1);
             Block b = arr.get(idx);
             arr.remove(idx);
             Pair<Integer, Integer> p1 = b.getX(), p2 = b.getY();
@@ -85,10 +85,6 @@ public class MazeGenerator {
         if (i < 1 || i > rows || j < 1 || j > cols)
             return false;
         return true;
-    }
-
-    public static ArrayList<ArrayList<Point>> getMaze() {
-        return maze;
     }
 
     public void print() {
