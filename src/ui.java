@@ -1,7 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class ui {
     public static void main(String[] args) {
@@ -12,7 +16,26 @@ public class ui {
 
     ui(int rows, int cols) {
         JFrame frame = new JFrame("tank battle");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        File saveFile = new File("maze.ser");
+        Optional<GameStorage> storage = Optional.empty();
+        if (saveFile.exists()) {
+            int result = JOptionPane.showConfirmDialog(
+                    frame,
+                    "发现存档，是否读取?",
+                    "读取存档",
+                    JOptionPane.YES_NO_OPTION
+            );
+            if (result == JOptionPane.YES_OPTION) {
+                storage = Optional.ofNullable(GameStorage.getMageStorage());
+                if (storage.isPresent()) {
+                    rows = storage.get().rowNum();
+                    cols = storage.get().colNum();
+                }
+            }
+        }
+
         int cellSize = 75;
         int frameWidth = cols * cellSize + 150;
         int frameHeight = rows * cellSize + 200;
@@ -33,6 +56,38 @@ public class ui {
         TankController tank1 = new TankController(cellSize, rows, cols, 1);
         tank1.setBounds(0, 0, frameWidth, frameHeight);
         layeredPane.add(tank1, JLayeredPane.PALETTE_LAYER);
+
+        //当读取到存档时，将存档的数据恢复
+        storage.ifPresent(x -> {
+            p.maze = x.maze();
+            tank1.tank.x = x.x();
+            tank1.tank.y = x.y();
+            tank1.tank.update();
+        });
+
+        //保存进度回调
+        int finalRows = rows;
+        int finalCols = cols;
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                int result = JOptionPane.showConfirmDialog(
+                        frame,
+                        "是否要保存进度?",
+                        "保存进度",
+                        JOptionPane.YES_NO_OPTION
+                );
+                if (result == JOptionPane.YES_OPTION) {
+                    if (GameStorage.storageMaze((int) tank1.tank.x, (int) tank1.tank.y, p.maze, finalRows, finalCols)) {
+                        System.exit(0);
+                    }
+                } else if (result == JOptionPane.NO_OPTION) {
+                    File file = new File("maze.ser");
+                    file.delete();
+                    System.exit(0);
+                }
+            }
+        });
 
         frame.add(layeredPane);
         frame.setVisible(true);

@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.*;
 
 public class utility {
@@ -52,7 +53,7 @@ class Pair<K, V> {
     }
 }
 
-class Point {
+class Point implements Serializable {
     int[] block = new int [4]; // 上, 右, 下, 左 (默认墙都存在)
     Point() {
         for (int i = 0; i < 4; i++)
