@@ -1,4 +1,5 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class MazeGenerator {
     static int rows;
@@ -84,7 +85,7 @@ public class MazeGenerator {
         return true;
     }
 
-    public void print() {
+    private void print() {
         for (int i = 1; i <= rows; i++) {
             // 打印顶部墙壁
             for (int j = 1; j <= cols; j++) {

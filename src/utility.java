@@ -1,5 +1,4 @@
-import java.io.Serializable;
-import java.util.*;
+import java.util.Objects;
 
 public class utility {
     static int rand(int low, int high) {
@@ -54,7 +53,7 @@ class Pair<K, V> {
 }
 
 class Point {
-    int[] block = new int [4]; // 上, 右, 下, 左 (默认墙都存在)
+    public int[] block = new int [4]; // 上, 右, 下, 左 (默认墙都存在)
     Point() {
         for (int i = 0; i < 4; i++)
             block[i] = 1;
@@ -62,23 +61,23 @@ class Point {
 }
 
 class Block {
-    int where = -1;
-    Pair<Integer, Integer> a, b;
+    public int where = -1;
+    public Pair<Integer, Integer> a, b;
     Block(int x1, int y1, int x2, int y2, int w) {
         a = new Pair<Integer, Integer>(x1, y1);
         b = new Pair<Integer, Integer>(x2, y2);
         where = w;
     }
 
-    Pair<Integer, Integer> getX() {
+    public Pair<Integer, Integer> getX() {
         return a;
     }
 
-    Pair<Integer, Integer> getY() {
+    public Pair<Integer, Integer> getY() {
         return b;
     }
 
-    int getW() {
+    public int getW() {
         return where;
     }
 }
