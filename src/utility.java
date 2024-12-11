@@ -53,7 +53,7 @@ class Pair<K, V> {
     }
 }
 
-class Point implements Serializable {
+class Point {
     int[] block = new int [4]; // 上, 右, 下, 左 (默认墙都存在)
     Point() {
         for (int i = 0; i < 4; i++)
@@ -65,8 +65,8 @@ class Block {
     int where = -1;
     Pair<Integer, Integer> a, b;
     Block(int x1, int y1, int x2, int y2, int w) {
-        a = new Pair(x1, y1);
-        b = new Pair(x2, y2);
+        a = new Pair<Integer, Integer>(x1, y1);
+        b = new Pair<Integer, Integer>(x2, y2);
         where = w;
     }
 

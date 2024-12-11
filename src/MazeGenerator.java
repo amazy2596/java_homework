@@ -1,19 +1,15 @@
 import java.util.*;
 
 public class MazeGenerator {
-    public static void main(String[] args) {
-        MazeGenerator m = new MazeGenerator(5, 5);
-        m.print();
-    }
-
-    int rows;
-    int cols;
+    static int rows;
+    static int cols;
     static ArrayList<ArrayList<Point>> maze;
+    static ArrayList<Block> blocks;
     static ArrayList<Pair<Integer, Integer>> directions;
 
     MazeGenerator(int rows, int cols) {
-        this.rows = rows;
-        this.cols = cols;
+        MazeGenerator.rows = rows;
+        MazeGenerator.cols = cols;
         maze = new ArrayList<>();
         for (int i = 0; i <= rows; i++) {
             ArrayList<Point> row = new ArrayList<>();
@@ -22,7 +18,8 @@ public class MazeGenerator {
             }
             maze.add(row);
         }
-        this.directions = new ArrayList<>();
+        blocks = new ArrayList<>();
+        directions = new ArrayList<>();
         directions.add(new Pair<Integer, Integer>(-1, 0));
         directions.add(new Pair<Integer, Integer>(0, 1));
         directions.add(new Pair<Integer, Integer>(1, 0));

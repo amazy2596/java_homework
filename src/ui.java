@@ -1,42 +1,19 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Optional;
 
-public class ui {
-    public static void main(String[] args) {
-        int rows = utility.rand(6, 9), cols = utility.rand(12, 15);
-        MazeGenerator mg = new MazeGenerator(rows, cols);
-        ui u = new ui(rows, cols);
-    }
+public class UI {
+    
+    static int cellSize = 75;
+    static int offsetX = 70;
+    static int offsetY = 50;
+    static int BlockWidth = 6;
 
-    ui(int rows, int cols) {
-        JFrame frame = new JFrame("tank battle");
+    UI(int rows, int cols) {
+        JFrame frame = new JFrame("tank trouble");
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-        File saveFile = new File("maze.ser");
-        Optional<GameStorage> storage = Optional.empty();
-        if (saveFile.exists()) {
-            int result = JOptionPane.showConfirmDialog(
-                    frame,
-                    "发现存档，是否读取?",
-                    "读取存档",
-                    JOptionPane.YES_NO_OPTION
-            );
-            if (result == JOptionPane.YES_OPTION) {
-                storage = Optional.ofNullable(GameStorage.getMageStorage());
-                if (storage.isPresent()) {
-                    rows = storage.get().rowNum();
-                    cols = storage.get().colNum();
-                }
-            }
-        }
-
-        int cellSize = 75;
         int frameWidth = cols * cellSize + 150;
         int frameHeight = rows * cellSize + 200;
         frame.setSize(frameWidth, frameHeight);
@@ -57,55 +34,21 @@ public class ui {
         tank1.setBounds(0, 0, frameWidth, frameHeight);
         layeredPane.add(tank1, JLayeredPane.PALETTE_LAYER);
 
-        //当读取到存档时，将存档的数据恢复
-        storage.ifPresent(x -> {
-            p.maze = x.maze();
-            tank1.tank.x = x.x();
-            tank1.tank.y = x.y();
-            tank1.tank.update();
-        });
-
-        //保存进度回调
-        int finalRows = rows;
-        int finalCols = cols;
-        frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                int result = JOptionPane.showConfirmDialog(
-                        frame,
-                        "是否要保存进度?",
-                        "保存进度",
-                        JOptionPane.YES_NO_OPTION
-                );
-                if (result == JOptionPane.YES_OPTION) {
-                    if (GameStorage.storageMaze((int) tank1.tank.x, (int) tank1.tank.y, p.maze, finalRows, finalCols)) {
-                        System.exit(0);
-                    }
-                } else if (result == JOptionPane.NO_OPTION) {
-                    File file = new File("maze.ser");
-                    file.delete();
-                    System.exit(0);
-                }
-            }
-        });
+        // TankController tank2 = new TankController(cellSize, rows, cols, 2);
+        // tank2.setBounds(0, 0, frameWidth, frameHeight);
+        // layeredPane.add(tank2, JLayeredPane.PALETTE_LAYER);
 
         frame.add(layeredPane);
         frame.setVisible(true);
     }
-    
+
 }
 
 class Map extends JPanel {
     ArrayList<ArrayList<Point>> maze;
-    int cellSize, rows, cols;
-    int offsetX = 70;
-    int offsetY = 50;
 
     Map(int cellSize, int rows, int cols) {
         this.maze = MazeGenerator.maze;
-        this.cellSize = cellSize;
-        this.rows = rows;
-        this.cols = cols;
     }
 
     @Override
@@ -117,34 +60,29 @@ class Map extends JPanel {
         g.fillRect(0, 0, getWidth(), getHeight());
 
         g.setColor(Color.decode("#E6E6E6"));
-        g.fillRect(offsetX, offsetY, cols * cellSize, rows * cellSize);
+        g.fillRect(UI.offsetX, UI.offsetY, MazeGenerator.cols * UI.cellSize, MazeGenerator.rows * UI.cellSize);
 
-        g.setColor(Color.black);
-        g2.setStroke(new BasicStroke(5));
-
-
-        for (int i = 1; i <= rows; i++) {
-            for (int j = 1; j <= cols; j++) {
+        g.setColor(Color.decode("#666666"));
+        for (int i = 1; i <= MazeGenerator.rows; i++) {
+            for (int j = 1; j <= MazeGenerator.cols; j++) {
                 Point p = maze.get(i).get(j);
-                int x = (j - 1) * cellSize;
-                int y = (i - 1) * cellSize;
+                int x = (j - 1) * UI.cellSize;
+                int y = (i - 1) * UI.cellSize;
 
-                // 偏移后的坐标
-                int adjustedX = x + offsetX;
-                int adjustedY = y + offsetY;
+                int adjustedX = x + UI.offsetX;
+                int adjustedY = y + UI.offsetY;
 
-                // 绘制墙壁
-                if (p.block[0] == 1) { // 上墙
-                    g2.drawLine(adjustedX, adjustedY, adjustedX + cellSize, adjustedY);
+                if (p.block[0] == 1) {
+                    g2.fillRect(adjustedX, adjustedY, UI.cellSize + UI.BlockWidth, UI.BlockWidth);
                 }
-                if (p.block[1] == 1) { // 右墙
-                    g2.drawLine(adjustedX + cellSize, adjustedY, adjustedX + cellSize, adjustedY + cellSize);
+                if (p.block[1] == 1) {
+                    g2.fillRect(adjustedX + UI.cellSize, adjustedY, UI.BlockWidth, UI.cellSize + UI.BlockWidth);
                 }
-                if (p.block[2] == 1) { // 下墙
-                    g2.drawLine(adjustedX, adjustedY + cellSize, adjustedX + cellSize, adjustedY + cellSize);
+                if (p.block[2] == 1) {
+                    g2.fillRect(adjustedX, adjustedY + UI.cellSize, UI.cellSize + UI.BlockWidth, UI.BlockWidth);
                 }
-                if (p.block[3] == 1) { // 左墙
-                    g2.drawLine(adjustedX, adjustedY, adjustedX, adjustedY + cellSize);
+                if (p.block[3] == 1) {
+                    g2.fillRect(adjustedX, adjustedY, UI.BlockWidth, UI.cellSize + UI.BlockWidth);
                 }
             }
         }
@@ -153,28 +91,11 @@ class Map extends JPanel {
 
 class PaintTank extends JPanel {
     Tank tank;
-    int cellSize = 75;
-    double prevCenterX, prevCenterY, prevAngle;
 
     PaintTank(Tank tank) {
         this.tank = tank;
-        prevCenterX = tank.centerX;
-        prevCenterY = tank.centerY;
-        prevAngle = tank.angle;
 
-        setOpaque(false); // 使背景透明
-    }
-
-    void updateInterpolation(double deltaTime, double logicInterval) {
-        double Factor = Math.min(deltaTime / logicInterval, 1.0);
-
-        prevCenterX = interpolate(prevCenterX, tank.centerX, Factor);
-        prevCenterY = interpolate(prevCenterY, tank.centerY, Factor);
-        prevAngle = interpolate(prevAngle, tank.angle, Factor);
-    }
-
-    double interpolate(double a, double b, double factor) {
-        return a + (b - a) * factor;
+        setOpaque(false);
     }
 
     @Override
@@ -182,42 +103,35 @@ class PaintTank extends JPanel {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        // 启用抗锯齿
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setStroke(new BasicStroke(1.4f));
+        g2.setStroke(new BasicStroke(1.5f));
 
-        // 平移和旋转
         g2.translate(tank.centerX, tank.centerY);
-        g2.rotate(-Math.toRadians(tank.angle + 90));
+        g2.rotate(-Math.toRadians(tank.angle - 90));
 
-        // 绘制坦克主体
         g2.setColor(Color.green);
         g2.fillRect(-(tank.width / 2), -(tank.height / 2), tank.width, tank.height);
 
         g2.setColor(Color.black);
         g2.drawRect(-(tank.width / 2), -(tank.height / 2), tank.width, tank.height);
 
-        // 绘制装饰圆弧
         int arcX = 3 - tank.width / 2;
         int arcY = (tank.height - tank.width + 6) / 2 - tank.height / 2;
-        g2.drawArc(arcX, arcY, tank.width - 6, tank.width - 6, 115, 308);
+        g2.drawArc(arcX, arcY, tank.width - 6, tank.width - 6, 115, 310);
 
-        // 绘制炮管
         int gunX = (int) ((tank.width - tank.gunWidth) / 2 - tank.width / 2);
         int gunY = (int) ((tank.height - tank.width + 6) / 2 - tank.gunHeight - tank.height / 2);
         g2.setColor(Color.green);
         g2.fillRect(gunX, gunY, (int) tank.gunWidth, (int) tank.gunHeight);
 
         g2.setColor(Color.black);
-        g2.drawLine(gunX, gunY, gunX + (int) tank.gunWidth, gunY); // 炮管顶线
-        g2.drawLine(gunX, gunY, gunX, gunY + (int) tank.gunHeight); // 炮管左线
-        g2.drawLine(gunX + (int) tank.gunWidth, gunY, gunX + (int) tank.gunWidth, gunY + (int) tank.gunHeight); // 炮管右线
+        g2.drawLine(gunX, gunY, gunX + (int) tank.gunWidth, gunY);
+        g2.drawLine(gunX, gunY, gunX, gunY + (int) tank.gunHeight);
+        g2.drawLine(gunX + (int) tank.gunWidth, gunY, gunX + (int) tank.gunWidth, gunY + (int) tank.gunHeight);
 
-        // 恢复画布状态
         g2.setTransform(g2.getDeviceConfiguration().getDefaultTransform());
     }
 }
-
 
 class TankController extends JPanel {
     Tank tank;
@@ -227,9 +141,6 @@ class TankController extends JPanel {
     boolean isBackward = false;
     boolean isLeft = false;
     boolean isRight = false;
-
-    long lastLogicUpdateTime = System.currentTimeMillis();
-    double logicInterval = 100;
 
     TankController(int cellSize, int rows, int cols, int id) {
         this.tank = new Tank(cellSize, rows, cols);
@@ -243,27 +154,10 @@ class TankController extends JPanel {
 
         Timer timer = new Timer(1, e -> {
             updateTankState();
-            // System.out.println("row: " + tank.row + " col: " + tank.col);
             tankPanel.repaint();
         });
 
         timer.start();
-
-        // Timer renderTimer = new Timer(16, e -> {
-        //     long currentTime = System.currentTimeMillis();
-        //     double deltaTime = currentTime - lastLogicUpdateTime;
-
-        //     tankPanel.updateInterpolation(deltaTime, logicInterval);
-        //     tankPanel.repaint();
-        // });
-
-        // Timer logicTimer = new Timer((int) logicInterval, e -> {
-        //     updateTankState();
-        //     lastLogicUpdateTime = System.currentTimeMillis();
-        // });
-
-        // renderTimer.start();
-        // logicTimer.start();
     }
 
     private void setupKeyBindings(int id) {
