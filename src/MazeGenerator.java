@@ -21,15 +21,15 @@ public class MazeGenerator {
         }
         blocks = new ArrayList<>();
         directions = new ArrayList<>();
-        directions.add(new Pair<Integer, Integer>(-1, 0));
-        directions.add(new Pair<Integer, Integer>(0, 1));
-        directions.add(new Pair<Integer, Integer>(1, 0));
-        directions.add(new Pair<Integer, Integer>(0, -1));
+        directions.add(new Pair<>(-1, 0));
+        directions.add(new Pair<>(0, 1));
+        directions.add(new Pair<>(1, 0));
+        directions.add(new Pair<>(0, -1));
         generateMaze();
     }
 
     private void generateMaze() {
-        prim(new Pair<Integer, Integer>(1, 1));
+        prim(new Pair<>(1, 1));
     }
 
     private void prim(Pair<Integer, Integer> p) {
@@ -48,7 +48,7 @@ public class MazeGenerator {
             }
         }
 
-        while (arr.size() != 0) {
+        while (!arr.isEmpty()) {
             int idx = utility.rand(0, arr.size() - 1);
             Block b = arr.get(idx);
             arr.remove(idx);
@@ -80,48 +80,6 @@ public class MazeGenerator {
     }
 
     private boolean isValid(int i, int j) {
-        if (i < 1 || i > rows || j < 1 || j > cols)
-            return false;
-        return true;
-    }
-
-    private void print() {
-        for (int i = 1; i <= rows; i++) {
-            // 打印顶部墙壁
-            for (int j = 1; j <= cols; j++) {
-                System.out.print("+");
-                if (maze.get(i).get(j).block[0] == 1) {
-                    System.out.print("---");
-                } else {
-                    System.out.print("   ");
-                }
-            }
-            System.out.println("+");
-            // 打印左侧墙壁和单元格
-            for (int j = 1; j <= cols; j++) {
-                if (maze.get(i).get(j).block[3] == 1) {
-                    System.out.print("|");
-                } else {
-                    System.out.print(" ");
-                }
-                System.out.print("   "); // 单元格内部空白
-            }
-            // 处理行末的右侧墙壁
-            if (maze.get(i).get(cols).block[1] == 1) {
-                System.out.println("|");
-            } else {
-                System.out.println(" ");
-            }
-        }
-        // 打印底部墙壁
-        for (int j = 1; j <= cols; j++) {
-            System.out.print("+");
-            if (maze.get(rows).get(j).block[2] == 1) {
-                System.out.print("---");
-            } else {
-                System.out.print("   ");
-            }
-        }
-        System.out.println("+");
+        return i >= 1 && i <= rows && j >= 1 && j <= cols;
     }
 }
