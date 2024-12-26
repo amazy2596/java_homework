@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.awt.image.BufferedImage;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 
 import javax.swing.*;
 
@@ -101,24 +103,32 @@ class Map extends JPanel {
 
 class PaintTank extends JPanel {
     Tank tank;
+    BufferedImage tankImage;
+    double lastAngle = -1;
 
     PaintTank(Tank tank) {
         this.tank = tank;
-
         setOpaque(false);
         setDoubleBuffered(true);
+
+        createTankImage();
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
+    private void createTankImage(){
+        tankImage = new BufferedImage(tank.maxDimension * 2, tank.maxDimension * 2, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = tankImage.createGraphics();
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+        g2.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+
         g2.setStroke(new BasicStroke(1.5f));
 
-        g2.translate(tank.centerX, tank.centerY);
+        g2.translate(tank.maxDimension / 2, tank.maxDimension / 2);
         g2.rotate(-Math.toRadians(tank.angle - 90));
+
+        g2.scale(2.0, 2.0);
 
         g2.setColor(Color.green);
         g2.fillRect(-(tank.width / 2), -(tank.height / 2), tank.width, tank.height);
@@ -141,6 +151,28 @@ class PaintTank extends JPanel {
         g2.drawLine(gunX + tank.gunWidth, gunY, gunX + tank.gunWidth, gunY + tank.gunHeight);
 
         g2.setTransform(g2.getDeviceConfiguration().getDefaultTransform());
+
+        g2.dispose();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (tankImage == null || lastAngle != tank.angle) {
+            createTankImage();
+            lastAngle = tank.angle;
+        }
+
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        AffineTransform oldTransform = g2.getTransform();
+
+        g2.translate(tank.centerX, tank.centerY);
+        g2.scale(0.5, 0.5);
+        g2.drawImage(tankImage, -tank.maxDimension / 2, -tank.maxDimension / 2, null);
+
+        g2.setTransform(oldTransform);
     }
 }
 

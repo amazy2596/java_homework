@@ -3,8 +3,8 @@ public class Tank {
     int row, col;
     double angle;
 
-    double speed = 2.75;
-    double per = 5;
+    double speed = 4;
+    double per = 8;
 
     int maxBullets = 6;
     int countBullets = 0;
@@ -14,6 +14,7 @@ public class Tank {
 
     int width = 22, height = 28;
     int gunWidth = 6, gunHeight = 12;
+    int maxDimension = (int) Math.sqrt(width * width + (height + 6) * (height + 6)) * 2;
 
     Tank(int rows, int cols, int id) {
         this.row = utility.rand(1, rows);
@@ -51,12 +52,12 @@ public class Tank {
 
     void fire() {
         if (countBullets < maxBullets) {
-            // countBullets++;
+            countBullets++;
             double bulletX = centerX + Math.cos(Math.toRadians(angle)) * ((width - 6) / 2 + gunHeight + 1);
             double bulletY = centerY - Math.sin(Math.toRadians(angle)) * ((width - 6) / 2 + gunHeight + 1);
 
-            Bullet bullet = new Bullet(bulletX, bulletY, angle);
-            Controller.bulletController.addBullet(bullet);
+            Bullet bullet = new Bullet(bulletX, bulletY, angle, id);
+            Controller.bulletController.addBullet(bullet, id);
         }
     }
 

@@ -36,7 +36,7 @@ public class Collision {
 
     static void checkTankAndBlock(Tank tank, double dx, double dy) {
         ArrayList<Pair<Path2D.Double, Integer>> blocks = createPolygon.blocks.get(tank.row).get(tank.col);
-        int steps = 4;
+        int steps = 5;
         double stepX = dx / steps;
         double stepY = dy / steps;
 
@@ -129,22 +129,35 @@ public class Collision {
     }
 
     static void checkBulletAndBlock(Bullet bullet, double dx, double dy) {
-        double newX = bullet.x + dx;
-        double newY = bullet.y + dy;
+        int steps = 10;
+        double stepX = dx / steps;
+        double stepY = dy / steps;
 
-        Path2D.Double bulletPoly = createPolygon.createBulletPolygon(bullet, newX, newY);
-        Pair<Path2D.Double, Integer> block = isCollidingWithBlock(bulletPoly, createPolygon.blocks.get(bullet.row).get(bullet.col));
+        double tempX = bullet.x;
+        double tempY = bullet.y;
 
-        if (block == null) {
-            bullet.x = newX;
-            bullet.y = newY;
-            return;
+        for (int i = 0; i < steps; i++) {
+            double newX = tempX + stepX;
+            double newY = tempY + stepY;
+
+            Path2D.Double bulletPoly = createPolygon.createBulletPolygon(bullet, newX, newY);
+            Pair<Path2D.Double, Integer> block = isCollidingWithBlock(bulletPoly, createPolygon.blocks.get(bullet.row).get(bullet.col));
+            if (block == null) {
+                tempX = newX;
+                tempY = newY;
+                continue;
+            }
+
+            if (block.getValue() == 0 || block.getValue() == 2) {
+                bullet.angle = (-bullet.angle + 360) % 360;
+                return;
+            } else if (block.getValue() == 1 || block.getValue() == 3) {
+                bullet.angle = (180 - bullet.angle + 360) % 360;
+                return;
+            }
         }
 
-        if (block.getValue() == 0 || block.getValue() == 2) {
-            bullet.angle = (-bullet.angle + 360) % 360;
-        } else if (block.getValue() == 1 || block.getValue() == 3) {
-            bullet.angle = (180 - bullet.angle + 360) % 360;
-        }
+        bullet.x = tempX;
+        bullet.y = tempY;
     }
 }

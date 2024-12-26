@@ -1,9 +1,11 @@
 import javax.swing.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.awt.image.BufferedImage;
 
 public class Controller {
     static TankController tank1, tank2;
@@ -30,7 +32,7 @@ class TankController extends JPanel {
 
         setupKeyBindings(id);
 
-        Timer timer = new Timer(1000 / 120, _ -> {
+        Timer timer = new Timer(1000 / 60, _ -> {
             updateTankState();
             Collision.checkTankAndBullet(tank, Controller.bulletController.activeBullets);
             checkAlive();
@@ -175,13 +177,16 @@ class BulletController extends JPanel {
     Queue<Bullet> bulletPool = new LinkedList<>();
     ArrayList<Bullet> activeBullets;
     long previousTime = System.nanoTime();
+    BufferedImage bulletImage;
 
     BulletController() {
         this.activeBullets = new ArrayList<>();
         setOpaque(false);
         setDoubleBuffered(true);
 
-        Timer bulletTimer = new Timer(1000 / 120, _ -> updateBullet(System.nanoTime()));
+        createBullet();
+
+        Timer bulletTimer = new Timer(1000 / 60, _ -> updateBullet(System.nanoTime()));
         bulletTimer.start();
 
         setLayout(new BorderLayout());
@@ -197,18 +202,23 @@ class BulletController extends JPanel {
             if (bullet.time <= 0) {
                 bulletPool.add(bullet);
                 bulletsToRemove.add(bullet);
+                if (bullet.id == 1) {
+                    Controller.tank1.tank.getBullet();
+                } else if (bullet.id == 2) {
+                    Controller.tank2.tank.getBullet();
+                }
             }
         }
         activeBullets.removeAll(bulletsToRemove);
         updateBulletState();
     }
 
-    void addBullet(Bullet bullet) {
+    void addBullet(Bullet bullet, int id) {
         Bullet reusedBullet = bulletPool.poll();
         if (reusedBullet == null) {
-            reusedBullet = new Bullet(bullet.x, bullet.y, bullet.angle);
+            reusedBullet = new Bullet(bullet.x, bullet.y, bullet.angle, id);
         } else {
-            reusedBullet.reset(bullet.x, bullet.y, bullet.angle);
+            reusedBullet.reset(bullet.x, bullet.y, bullet.angle, id);
         }
         activeBullets.add(reusedBullet);
     }
@@ -220,6 +230,21 @@ class BulletController extends JPanel {
         repaint();
     }
 
+    void createBullet() {
+        int size = 12;
+        bulletImage = new BufferedImage(size * 2, size * 2, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = bulletImage.createGraphics();
+
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        g2.translate(size / 2, size / 2);
+        g2.scale(2, 2);
+        g2.setColor(Color.black);
+        g2.fillOval(0, 0, 6, 6);
+
+        g2.dispose();
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -227,12 +252,16 @@ class BulletController extends JPanel {
         
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-        g2.setColor(Color.black);
         for (Bullet bullet : activeBullets) {
+            AffineTransform oldTransform = g2.getTransform();
+
             g2.translate(bullet.x, bullet.y);
             g2.rotate(-Math.toRadians(bullet.angle + 45));
-            g2.fillArc(0, 0, 2 * bullet.r, 2 * bullet.r, 0, 360);
-            g2.setTransform(g2.getDeviceConfiguration().getDefaultTransform());
+
+            g2.scale(0.5, 0.5);
+            g2.drawImage(bulletImage, -6, -6, null);
+
+            g2.setTransform(oldTransform);
         }
     }
 }
