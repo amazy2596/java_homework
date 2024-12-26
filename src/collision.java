@@ -71,6 +71,34 @@ public class Collision {
         tank.centerY = tempY;
     }
 
+    static boolean checkForwardOrBack(Tank tank, Pair<Path2D.Double, Integer> block) {
+        if (block.getValue() == 0) {
+            if (tank.angle > 180 && tank.angle <= 360) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (block.getValue() == 1) {
+            if (tank.angle > 90 && tank.angle <= 270) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (block.getValue() == 2) {
+            if (tank.angle > 0 && tank.angle <= 180) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if ((tank.angle > 270 && tank.angle <= 360) || (tank.angle > 0 && tank.angle <= 90)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
     static void checkTankRotationAndBlock(Tank tank, double angleDiff) {
         int steps = 10;
         double stepAngle = angleDiff / steps;
@@ -94,6 +122,11 @@ public class Collision {
                     
                     double dx = -Math.cos(rad) * pushDistance;
                     double dy = Math.sin(rad) * pushDistance;
+
+                    if (!checkForwardOrBack(tank, block)) {
+                        dx = -dx;
+                        dy = -dy;
+                    }
     
                     double backupX = tank.centerX;
                     double backupY = tank.centerY;
