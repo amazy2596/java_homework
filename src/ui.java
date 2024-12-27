@@ -68,7 +68,7 @@ class Map extends JPanel {
         g.setColor(Color.decode("#E6E6E6"));
         g.fillRect(UI.offsetX, UI.offsetY, MazeGenerator.cols * UI.cellSize, MazeGenerator.rows * UI.cellSize);
 
-        g.setColor(Color.decode("#666666"));
+        g.setColor(Color.decode("#4D4D4D"));
         for (int i = 1; i <= MazeGenerator.rows; i++) {
             for (int j = 1; j <= MazeGenerator.cols; j++) {
                 Point p = maze.get(i).get(j);
