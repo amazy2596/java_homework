@@ -53,7 +53,7 @@ public class UI {
         buttonPanel.setBounds(frame.getWidth()/2 - 150, 150, 300, 300);
         buttonPanel.setOpaque(false);
         
-        String[] modes = {"单人游戏", "双人对战", "双人电脑", "三人对战"};
+        String[] modes = {"双人对战", "双人电脑", "三人对战", "退出游戏"};
         for (String mode : modes) {
             JButton button = createStyledButton(mode);
             buttonPanel.add(button);
@@ -98,14 +98,15 @@ public class UI {
         
         button.addActionListener(_ -> {
             switch (text) {
-                case "单人游戏":
-                    break;
                 case "双人对战":
                     twoPlayer();
                     break;
                 case "双人电脑":
                     break;
                 case "三人对战":
+                    break;
+                case "退出游戏":
+                    System.exit(0);
                     break;
             }
         });
