@@ -4,7 +4,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 
 public class createPolygon {
-    static ArrayList<ArrayList<ArrayList<Pair<Path2D.Double, Integer>>>> blocks = createPolygon.createBlockPolygons();
+    static ArrayList<ArrayList<ArrayList<Pair<Path2D.Double, Integer>>>> blocks;
 
     static Path2D.Double fillRect(double x1, double y1, double x2, double y2) {
         Path2D.Double polygon = new Path2D.Double();

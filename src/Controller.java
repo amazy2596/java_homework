@@ -8,19 +8,15 @@ import java.util.Queue;
 import java.awt.image.BufferedImage;
 
 public class Controller {
-    static TankController tank1, tank2;
-    static BulletController bulletController;
+    static TankController tank1, tank2, tank3;
+    static BulletController bulletController = new BulletController();
 }
 
 class TankController extends JPanel {
     Tank tank;
     PaintTank tankPanel;
 
-    boolean isForward = false;
-    boolean isBackward = false;
-    boolean isLeft = false;
-    boolean isRight = false;
-    boolean isFire = false;
+    Timer timer;
 
     TankController(int rows, int cols, int id) {
         this.tank = new Tank(rows, cols, id);
@@ -32,7 +28,7 @@ class TankController extends JPanel {
 
         setupKeyBindings(id);
 
-        Timer timer = new Timer(1000 / 60, _ -> {
+        timer = new Timer(1000 / 60, _ -> {
             updateTankState();
             Collision.checkTankAndBullet(tank, Controller.bulletController.activeBullets);
             checkAlive();
@@ -42,133 +38,159 @@ class TankController extends JPanel {
         timer.start();
     }
 
+    public void stopTimer() {
+        if (timer != null && timer.isRunning()) {
+            timer.stop();
+            timer = null;
+        }
+    }
+
     private void checkAlive() {
         if (!tank.isAlive) {
             this.setVisible(false);
+            stopTimer();
+            setDead();
         }
+    }
+
+    private void setDead() {
+        if (tank.id == 1) {
+            if (!Controller.tank2.tank.isAlive) {
+                return;
+            }
+        } else if (tank.id == 2) {
+            if (!Controller.tank1.tank.isAlive) {
+                return;
+            }
+        }
+
+        Timer scoreTimer = new Timer(3000, _ -> {
+            if (tank.id == 1) {
+                if (!Controller.tank2.tank.isAlive) {
+                    UI.updateScore(0);
+                } else {
+                    UI.updateScore(2);
+                }
+            } else if (tank.id == 2) {
+                if (!Controller.tank1.tank.isAlive) {
+                    UI.updateScore(0);
+                } else {
+                    UI.updateScore(1);
+                }
+            }
+            Main.game.resetGame();
+            Main.game.twoPlayer();
+        });
+        
+        scoreTimer.setRepeats(false);
+        scoreTimer.start();
     }
 
     private void setupKeyBindings(int id) {
         InputMap inputMap = getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap actionMap = getActionMap();
 
-        if (id == 1)
-            inputMap.put(KeyStroke.getKeyStroke("pressed W"), "forwardPressed");
-        else if (id == 2)
+        if (id == 1) {
+            inputMap.put(KeyStroke.getKeyStroke("pressed E"), "forwardPressed");
+            inputMap.put(KeyStroke.getKeyStroke("released E"), "forwardReleased");
+            inputMap.put(KeyStroke.getKeyStroke("pressed D"), "backwardPressed");
+            inputMap.put(KeyStroke.getKeyStroke("released D"), "backwardReleased");
+            inputMap.put(KeyStroke.getKeyStroke("pressed S"), "leftPressed");
+            inputMap.put(KeyStroke.getKeyStroke("released S"), "leftReleased");
+            inputMap.put(KeyStroke.getKeyStroke("pressed F"), "rightPressed");
+            inputMap.put(KeyStroke.getKeyStroke("released F"), "rightReleased");
+            inputMap.put(KeyStroke.getKeyStroke("pressed Q"), "fire");
+        }
+        else if (id == 2) {
             inputMap.put(KeyStroke.getKeyStroke("pressed UP"), "forwardPressed");
+            inputMap.put(KeyStroke.getKeyStroke("released UP"), "forwardReleased");
+            inputMap.put(KeyStroke.getKeyStroke("pressed DOWN"), "backwardPressed");
+            inputMap.put(KeyStroke.getKeyStroke("released DOWN"), "backwardReleased");
+            inputMap.put(KeyStroke.getKeyStroke("pressed LEFT"), "leftPressed");
+            inputMap.put(KeyStroke.getKeyStroke("released LEFT"), "leftReleased");
+            inputMap.put(KeyStroke.getKeyStroke("pressed RIGHT"), "rightPressed");
+            inputMap.put(KeyStroke.getKeyStroke("released RIGHT"), "rightReleased");
+            inputMap.put(KeyStroke.getKeyStroke("pressed ENTER"), "fire");
+        }
+
         actionMap.put("forwardPressed", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                isForward = true;
+                tank.isForward = true;
             }
         });
-
-        if (id == 1)
-            inputMap.put(KeyStroke.getKeyStroke("released W"), "forwardReleased");
-        else if (id == 2)
-            inputMap.put(KeyStroke.getKeyStroke("released UP"), "forwardReleased");
         actionMap.put("forwardReleased", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                isForward = false;
+                tank.isForward = false;
             }
         });
 
-        if (id == 1)
-            inputMap.put(KeyStroke.getKeyStroke("pressed S"), "backwardPressed");
-        else if (id == 2)
-            inputMap.put(KeyStroke.getKeyStroke("pressed DOWN"), "backwardPressed");
         actionMap.put("backwardPressed", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                isBackward = true;
+                tank.isBackward = true;
             }
         });
-
-        if (id == 1)
-            inputMap.put(KeyStroke.getKeyStroke("released S"), "backwardReleased");
-        else if (id == 2)
-            inputMap.put(KeyStroke.getKeyStroke("released DOWN"), "backwardReleased");
         actionMap.put("backwardReleased", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                isBackward = false;
+                tank.isBackward = false;
             }
         });
 
-        if (id == 1)
-            inputMap.put(KeyStroke.getKeyStroke("pressed A"), "leftPressed");
-        else if (id == 2)
-            inputMap.put(KeyStroke.getKeyStroke("pressed LEFT"), "leftPressed");
         actionMap.put("leftPressed", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                isLeft = true;
+                tank.isLeft = true;
             }
         });
-
-        if (id == 1)
-            inputMap.put(KeyStroke.getKeyStroke("released A"), "leftReleased");
-        else if (id == 2)
-            inputMap.put(KeyStroke.getKeyStroke("released LEFT"), "leftReleased");
         actionMap.put("leftReleased", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                isLeft = false;
+                tank.isLeft = false;
             }
         });
 
-        if (id == 1)
-            inputMap.put(KeyStroke.getKeyStroke("pressed D"), "rightPressed");
-        else if (id == 2)
-            inputMap.put(KeyStroke.getKeyStroke("pressed RIGHT"), "rightPressed");
         actionMap.put("rightPressed", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                isRight = true;
+                tank.isRight = true;
             }
         });
 
-        if (id == 1)
-            inputMap.put(KeyStroke.getKeyStroke("released D"), "rightReleased");
-        else if (id == 2)
-            inputMap.put(KeyStroke.getKeyStroke("released RIGHT"), "rightReleased");
         actionMap.put("rightReleased", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                isRight = false;
+                tank.isRight = false;
             }
         });
 
-        if (id == 1)
-            inputMap.put(KeyStroke.getKeyStroke("pressed SPACE"), "fire");
-        else if (id == 2)
-            inputMap.put(KeyStroke.getKeyStroke("pressed ENTER"), "fire");
         actionMap.put("fire", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                isFire = true;
+                tank.isFire = true;
             }
         });
 
     }
 
     void updateTankState() {
-        if (isForward) {
+        if (tank.isForward) {
             tank.moveForward();
         }
-        if (isBackward) {
+        if (tank.isBackward) {
             tank.moveBackward();
         }
-        if (isLeft) {
+        if (tank.isLeft) {
             tank.turnLeft();
         }
-        if (isRight) {
+        if (tank.isRight) {
             tank.turnRight();
         }
-        if (isFire) {
+        if (tank.isFire) {
             tank.fire();
-            isFire = false;
+            tank.isFire = false;
         }
     }
 }

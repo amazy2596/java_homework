@@ -28,7 +28,7 @@ public class Collision {
             testArea.intersect(bulletArea);
             if (!testArea.isEmpty()) {
                 bullet.time = 0;
-                return true;
+                return true;  
             }
         }
         return false;
@@ -51,19 +51,26 @@ public class Collision {
             if (isCollidingWithBlock(tankPoly, blocks) == null) {
                 tempX = newX;
                 tempY = newY;
+                tank.isCollisionWithBlock = false;
                 continue;
+            } else {
+                tank.isCollisionWithBlock = true;
             }
 
             tankPoly = createPolygon.createTankPolygon(tank, tempX, newY, tank.angle);
             if (isCollidingWithBlock(tankPoly, blocks) == null) {
                 tempY = newY;
                 continue;
+            } else {
+                tank.isCollisionWithBlock = true;
             }
 
             tankPoly = createPolygon.createTankPolygon(tank, newX, tempY, tank.angle);
             if (isCollidingWithBlock(tankPoly, blocks) == null) {
                 tempX = newX;
                 continue;
+            } else {
+                tank.isCollisionWithBlock = true;
             }
         }
 

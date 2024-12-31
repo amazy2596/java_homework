@@ -1,12 +1,24 @@
 public class Main {
+    static Game game = new Game();
     public static void main(String[] args) {
-        int rows = utility.rand(6, 9), cols = utility.rand(9, 12);
-        MazeGenerator mg = new MazeGenerator(rows, cols);
+        game.startGame();
+    }
+}
 
-        Controller.bulletController = new BulletController();
-        Controller.tank1 = new TankController(rows, cols, 1);
-        // Controller.tank2 = new TankController(rows, cols, 2);
-        
-        UI ui = new UI(rows, cols);
+class Game {
+    static UI ui = new UI();
+
+    Game() {}
+    
+    void startGame() {
+        ui.menu();
+    }
+
+    void twoPlayer() {
+        ui.twoPlayer();
+    }
+
+    void resetGame() {
+        ui.cleanUpGame();
     }
 }

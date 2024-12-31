@@ -9,7 +9,14 @@ public class Tank {
     int maxBullets = 6;
     int countBullets = 0;
 
+    boolean isForward = false;
+    boolean isBackward = false;
+    boolean isLeft = false;
+    boolean isRight = false;
+
     boolean isAlive = true;
+    boolean isFire = false;
+    boolean isCollisionWithBlock = false;
     int id;
 
     int width = 22, height = 28;
@@ -30,6 +37,9 @@ public class Tank {
         double dx = Math.cos(Math.toRadians(angle)) * speed;
         double dy = -Math.sin(Math.toRadians(angle)) * speed;
         Collision.checkTankAndBlock(this, dx, dy);
+        if (isCollisionWithBlock) {
+            shake();
+        }
         update();
     }
 
@@ -37,6 +47,9 @@ public class Tank {
         double dx = -Math.cos(Math.toRadians(angle)) * speed;
         double dy = Math.sin(Math.toRadians(angle)) * speed;
         Collision.checkTankAndBlock(this, dx, dy);
+        if (isCollisionWithBlock) {
+            shake();
+        }
         update();
     }
 
@@ -48,6 +61,14 @@ public class Tank {
     void turnRight() {
         Collision.checkTankRotationAndBlock(this, -per);
         update();
+    }
+
+    void shake() {
+        double dx = utility.rand(-1, 1);
+        double dy = utility.rand(-1, 1);
+        double rad = utility.rand(-2, 2);
+        Collision.checkTankAndBlock(this, dx, dy);
+        Collision.checkTankRotationAndBlock(this, rad);
     }
 
     void fire() {
