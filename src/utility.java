@@ -64,8 +64,8 @@ class Block {
     public int where = -1;
     public Pair<Integer, Integer> a, b;
     Block(int x1, int y1, int x2, int y2, int w) {
-        a = new Pair<Integer, Integer>(x1, y1);
-        b = new Pair<Integer, Integer>(x2, y2);
+        a = new Pair<>(x1, y1);
+        b = new Pair<>(x2, y2);
         where = w;
     }
 

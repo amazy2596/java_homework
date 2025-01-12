@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.awt.image.BufferedImage;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
-
 import javax.swing.*;
 
 public class UI {
